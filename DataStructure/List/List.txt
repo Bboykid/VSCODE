@@ -1,0 +1,16 @@
+ADT List {
+    
+    InitList(&L);
+    DestroyList(&L);
+    ClearList(&L);
+    ListEmpty(L);
+    ListLength(L);
+    GetElem(L,i,&e);
+    LocateElem(L,e,compare());
+    PriorElem(L,cur_e,&pre_e);
+    NextElem(L,cur_e,&next_e);
+    ListInsert(&L,i,e);
+    ListDelete(&L,i,e);
+    ListTraverse(L,visit());
+
+} ADT List

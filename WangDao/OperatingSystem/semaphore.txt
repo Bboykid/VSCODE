@@ -1,0 +1,208 @@
+semaphore mutex=1;
+semaphore empty=n;
+semaphore full=0;
+
+producer()
+{
+    while(1)
+    {
+        P(empty);
+        P(mutex);
+        produce;
+        V(mutex);
+        V(full);
+    }
+}
+
+consumer()
+{
+    while(1)
+    {
+        P(full);
+        P(mutex);
+        consume;
+        V(mutex);
+        V(empty);
+    }
+}
+
+// reader and writer
+写进程优先
+
+semaphore mutex=1;
+int count =1;       //记录读进程的个数
+semaphore rw=1;
+semaphore w=1;
+
+reader()
+{
+    while(1) {
+        P(w);        //无写进程时才能读
+        P(mutex);
+        if(count==0)
+            P(rw);  //第一个读进程控制rw实现与写的互斥
+        count++;
+        V(mutex);
+        V(w);       //恢复对共享文件的访问
+
+        read;
+
+        P(mutex);
+        if(count==1)    //最后一个读进程释放控制权
+            V(rw);
+        count--;
+        V(mutex);
+
+    }
+}
+
+writer()
+{
+    while(1) {
+        P(w);       //有读进程不能写
+        P(rw);
+        write;
+        V(rw);
+        V(w);
+
+    }
+}
+
+
+// 吸烟者问题
+semaphore offer1=0;
+semaphore offer2=0;
+semaphore offer3=0;
+semaphore empty=1;
+
+smoker1()
+{
+    while(1){
+        P(offer1);
+        smoking;
+        V(empty);
+    }
+}
+...
+offer()
+{
+    while(1){
+        P(empty);
+        num = random();
+        if(num==1)
+            V(offer1);
+        else if(num==2);
+            V(offer2);
+        else if(num==3)
+            V(offer3);
+    }
+}
+
+
+semaphore empty=1000;   //环形缓冲区的空闲容量
+semaphore full=0;       //环形缓冲区上已生产的产品数
+semaphore mutex1=1;        //缓冲区互斥锁
+semaphore mutex2=1;         //消费互斥锁
+
+producer(){
+    while(1){
+        P(mutex1)
+        P(empty);   //申请一个空闲缓冲区
+        produce;    //生产一个产品
+        V(full);    //full+1
+        V(mutex1);
+    }
+}
+
+consumer(){
+    P(mutex2)       //消费者互斥取产品
+    for(int i=0;i<10;i++)
+    {
+        P(mutex1);
+        P(full);
+        remove a product
+        V(empty);
+        V(mutex1);
+    }
+    
+    V(mutex2);
+}
+
+
+//
+
+semaphore mutex1=1;     //互斥访问水井
+semaphore mutex2=1;     //互斥访问水缸
+semaphore volume=10;       //水缸的容量
+semaphore water=0;      //水缸中的水量
+semaphore empty=3;      //空桶的数量
+
+take()      //从水缸取水
+{
+    while(1)
+    {
+        P(water);      //水缸有水才能取
+        P(empty);       //申请空桶
+        P(mutex2);
+        从水缸取水;
+        V(mutex2);
+        V(empty);        //释放空桶
+        V(volume);      //水缸容量加1
+
+    }
+}
+out()
+{
+    while(1)
+    {
+        //从井取水
+        P(volume);
+        P(empty);   //申请一个水桶
+        P(mutex1);  //互斥访问水井
+        take;       //取水
+        V(mutex1);  
+        P(mutex2);
+        入水
+        V(mutex2);
+        V(water);
+        V(empty);             
+
+    }
+}
+
+//
+semaphore consumers=0;   //顾客等待理发
+semaphore cut=0;        //理发师等待顾客
+semaphore mutex=1;      //互斥访问
+int waiting=0;
+
+tony()
+{
+    while(1)
+    {
+        P(consumers);    //有顾客等待理发师
+        P(mutex);
+        waiting--;
+        V(mutex);
+        V(cut);         //唤醒顾客
+        cutting;
+    }
+}
+
+consumer() {
+    while(1){
+        P(mutex);
+        if(waiting<10)
+        {
+            waiting++;  
+            V(mutex);
+            V(consumers);
+            P(cut);
+            理发
+        }
+        else
+            V(mutex);
+    }
+}
+
+

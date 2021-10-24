@@ -1,0 +1,84 @@
+银行问题
+
+semaphore mutex=1;  //互斥访问叫号机
+semaphore chair=10; //空位
+semaphore waiting=0; //等待的顾客数量
+semaphore service=1; //服务
+cobegin
+{
+    process 顾客i{
+        
+        P(chair);
+        P(mutex);
+        从取号机获得一个号码;
+        V(waiting);
+        V(mutex);
+        P(service);
+        等待叫号;
+        获取服务;
+
+    }
+    process 营业员{
+        while(TRUE){
+            PV(waiting);
+            叫号;
+            为客户服务;
+            V(service);
+        }
+
+    }
+}
+
+
+int countEast=0;
+int countWest=0;
+semaphore mutexEast=1;  //访问countEast的互斥锁
+semaphore mutexWest=1;  //访问countWest的互斥锁
+semaphore rope=1;       //互斥访问绳索
+
+process East()
+{
+    P(mutexEast);
+    if(countEast==0);
+        P(rope);
+    countEast++;
+    V(mutexEast);
+    通过绳索
+    P(mutexEast);
+    --countEast;
+    if(countEast==0)
+        V(rope);
+    V(mutexEast);
+}
+
+process West()
+{
+    ...
+}
+
+
+
+semaphore mutex=1;  //互斥使用录像厅
+int count1=0;       //看录像1的观众数
+int count2=0;
+int count3=0;
+semaphore mutex1=1;
+semaphore mutex2=1;
+semaphore mutex3=1;
+
+
+
+process p1()
+{
+    P(mutex1);
+    if(count1==0)
+        P(mutex);
+    count1++;
+    V(mutex1);
+    入场观看;
+    P(mutex1);
+    --count1;
+    if(count1==0)
+        V(mutex);
+    V(mutex1); 
+}
